@@ -96,7 +96,7 @@ def specVersion = "2"
 def vendor = "thelm"
 
 group = "thelm.jaopca.gtceu"
-version = "2.1.1.8"
+version = "2.1.1.9"
 
 archivesBaseName = "${modName}-${mcVersion}"
 
@@ -143,7 +143,7 @@ dependencies {
 	modImplementation("com.lowdragmc.ldlib:ldlib-forge-1.20.1:1.0.31") {transitive = false}
 	modImplementation "curse.maven:configuration-444699:4710266"
 	implementation "io.github.llamalad7:mixinextras-forge:0.3.6"
-	modImplementation("com.gregtechceu.gtceu:gtceu-1.20.1:1.5.4:slim") {transitive = false}
+	modImplementation("com.gregtechceu.gtceu:gtceu-1.20.1:1.6.2:slim") {transitive = false}
 	modImplementation("mezz.jei:jei-1.20.1-forge:15.20.0.105") {transitive = false}
 
 	// Testing

@@ -48,8 +48,8 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 	public final List<Pair<Object, Triple<Integer, Integer, Integer>>> itemOutput;
 	public final List<Pair<Object, Triple<Integer, Integer, Integer>>> fluidInput;
 	public final List<Pair<Object, Triple<Integer, Integer, Integer>>> fluidOutput;
-	public final OptionalDouble stressInput;
-	public final OptionalDouble stressOutput;
+	//public final OptionalDouble stressInput;
+	//public final OptionalDouble stressOutput;
 	public final CompoundTag data;
 	public final List<RecipeCondition> conditions;
 
@@ -67,8 +67,8 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 		this.itemOutput = settings.itemOutput;
 		this.fluidInput = settings.fluidInput;
 		this.fluidOutput = settings.fluidOutput;
-		this.stressInput = settings.stressInput;
-		this.stressOutput = settings.stressOutput;
+		//this.stressInput = settings.stressInput;
+		//this.stressOutput = settings.stressOutput;
 		this.data = settings.data;
 		this.conditions = settings.conditions;
 	}
@@ -137,12 +137,12 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 		builder.input.computeIfAbsent(FluidRecipeCapability.CAP, c->new ArrayList<>()).addAll(fluidInputs);
 		builder.output.computeIfAbsent(ItemRecipeCapability.CAP, c->new ArrayList<>()).addAll(itemOutputs);
 		builder.output.computeIfAbsent(FluidRecipeCapability.CAP, c->new ArrayList<>()).addAll(fluidOutputs);
-		if(stressInput.isPresent()) {
-			builder.inputStress((float)stressInput.getAsDouble());
-		}
-		if(stressOutput.isPresent()) {
-			builder.outputStress((float)stressOutput.getAsDouble());
-		}
+		//if(stressInput.isPresent()) {
+		//	builder.inputStress((float)stressInput.getAsDouble());
+		//}
+		//if(stressOutput.isPresent()) {
+		//	builder.outputStress((float)stressOutput.getAsDouble());
+		//}
 		builder.data.merge(data);
 		builder.conditions.addAll(conditions);
 

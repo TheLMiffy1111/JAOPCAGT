@@ -16,7 +16,7 @@ import com.gregtechceu.gtceu.common.recipe.condition.BiomeCondition;
 import com.gregtechceu.gtceu.common.recipe.condition.CleanroomCondition;
 import com.gregtechceu.gtceu.common.recipe.condition.DimensionCondition;
 import com.gregtechceu.gtceu.common.recipe.condition.PositionYCondition;
-import com.gregtechceu.gtceu.common.recipe.condition.RPMCondition;
+//import com.gregtechceu.gtceu.common.recipe.condition.RPMCondition;
 import com.gregtechceu.gtceu.common.recipe.condition.RainingCondition;
 import com.gregtechceu.gtceu.common.recipe.condition.ThunderCondition;
 
@@ -229,13 +229,13 @@ public class GTRecipeSettings {
 		return posY(min, max, false);
 	}
 
-	public GTRecipeSettings rpm(float rpm, boolean reverse) {
-		return addCondition(new RPMCondition(rpm).setReverse(reverse));
-	}
+	//public GTRecipeSettings rpm(float rpm, boolean reverse) {
+	//	return addCondition(new RPMCondition(rpm).setReverse(reverse));
+	//}
 
-	public GTRecipeSettings rpm(float rpm) {
-		return rpm(rpm, false);
-	}
+	//public GTRecipeSettings rpm(float rpm) {
+	//	return rpm(rpm, false);
+	//}
 
 	public GTRecipeSettings duration(int duration) {
 		this.duration = OptionalInt.of(duration);
