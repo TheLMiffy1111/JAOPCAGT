@@ -1,1 +1,2 @@
-Updated GregTech to 1.4.4  
+Updated GregTech to 1.6+  
+Optimized images with oxipng  

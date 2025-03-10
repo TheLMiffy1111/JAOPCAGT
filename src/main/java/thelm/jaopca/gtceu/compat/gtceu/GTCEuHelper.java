@@ -11,7 +11,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.google.gson.JsonElement;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
-import com.lowdragmc.lowdraglib.side.fluid.forge.FluidHelperImpl;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -66,12 +65,11 @@ public class GTCEuHelper {
 			fluids.addAll(helper.getFluidTagValues(key.location()));
 		}
 		else if(obj instanceof FluidStack stack) {
-			ing = FluidIngredient.of(FluidHelperImpl.toFluidStack(stack));
+			ing = FluidIngredient.of(stack);
 			fluids.add(stack.getFluid());
 		}
 		else if(obj instanceof FluidStack[] stacks) {
-			ing = FluidIngredient.of(Arrays.stream(stacks).map(FluidHelperImpl::toFluidStack).
-					toArray(com.lowdragmc.lowdraglib.side.fluid.FluidStack[]::new));
+			ing = FluidIngredient.of(stacks);
 			Arrays.stream(stacks).map(FluidStack::getFluid).forEach(fluids::add);
 		}
 		else if(obj instanceof Fluid fluid) {

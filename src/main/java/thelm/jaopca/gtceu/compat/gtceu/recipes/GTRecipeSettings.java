@@ -2,21 +2,21 @@ package thelm.jaopca.gtceu.compat.gtceu.recipes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
+import com.gregtechceu.gtceu.api.data.medicalcondition.MedicalCondition;
 import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType;
 import com.gregtechceu.gtceu.api.recipe.RecipeCondition;
 import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour;
 import com.gregtechceu.gtceu.common.recipe.condition.BiomeCondition;
 import com.gregtechceu.gtceu.common.recipe.condition.CleanroomCondition;
 import com.gregtechceu.gtceu.common.recipe.condition.DimensionCondition;
+import com.gregtechceu.gtceu.common.recipe.condition.EnvironmentalHazardCondition;
 import com.gregtechceu.gtceu.common.recipe.condition.PositionYCondition;
-import com.gregtechceu.gtceu.common.recipe.condition.RPMCondition;
 import com.gregtechceu.gtceu.common.recipe.condition.RainingCondition;
 import com.gregtechceu.gtceu.common.recipe.condition.ThunderCondition;
 
@@ -35,8 +35,6 @@ public class GTRecipeSettings {
 	public List<Pair<Object, Triple<Integer, Integer, Integer>>> itemOutput = new ArrayList<>();
 	public List<Pair<Object, Triple<Integer, Integer, Integer>>> fluidInput = new ArrayList<>();
 	public List<Pair<Object, Triple<Integer, Integer, Integer>>> fluidOutput = new ArrayList<>();
-	public OptionalDouble stressInput = OptionalDouble.empty();
-	public OptionalDouble stressOutput = OptionalDouble.empty();
 	public CompoundTag data = new CompoundTag();
 	public List<RecipeCondition> conditions = new ArrayList<>();
 	public OptionalInt duration = OptionalInt.empty();
@@ -113,16 +111,6 @@ public class GTRecipeSettings {
 
 	public GTRecipeSettings fluidOutput(Object output, int amount, int chance, int tierChanceBoost) {
 		fluidOutput.add(Pair.of(output, Triple.of(amount, chance, tierChanceBoost)));
-		return this;
-	}
-
-	public GTRecipeSettings stressInput(float stress) {
-		stressInput = OptionalDouble.of(stress);
-		return this;
-	}
-
-	public GTRecipeSettings stressOutput(float stress) {
-		stressOutput = OptionalDouble.of(stress);
 		return this;
 	}
 
@@ -229,12 +217,12 @@ public class GTRecipeSettings {
 		return posY(min, max, false);
 	}
 
-	public GTRecipeSettings rpm(float rpm, boolean reverse) {
-		return addCondition(new RPMCondition(rpm).setReverse(reverse));
+	public GTRecipeSettings environmentalHazard(MedicalCondition condition, boolean reverse) {
+		return addCondition(new EnvironmentalHazardCondition(condition).setReverse(reverse));
 	}
 
-	public GTRecipeSettings rpm(float rpm) {
-		return rpm(rpm, false);
+	public GTRecipeSettings environmentalHazard(MedicalCondition condition) {
+		return environmentalHazard(condition, false);
 	}
 
 	public GTRecipeSettings duration(int duration) {

@@ -3,7 +3,6 @@ package thelm.jaopca.gtceu.compat.gtceu.recipes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.OptionalDouble;
 import java.util.OptionalLong;
 
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -23,7 +22,6 @@ import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack;
-import com.mojang.serialization.Codec;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.nbt.CompoundTag;
@@ -48,8 +46,6 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 	public final List<Pair<Object, Triple<Integer, Integer, Integer>>> itemOutput;
 	public final List<Pair<Object, Triple<Integer, Integer, Integer>>> fluidInput;
 	public final List<Pair<Object, Triple<Integer, Integer, Integer>>> fluidOutput;
-	public final OptionalDouble stressInput;
-	public final OptionalDouble stressOutput;
 	public final CompoundTag data;
 	public final List<RecipeCondition> conditions;
 
@@ -67,8 +63,6 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 		this.itemOutput = settings.itemOutput;
 		this.fluidInput = settings.fluidInput;
 		this.fluidOutput = settings.fluidOutput;
-		this.stressInput = settings.stressInput;
-		this.stressOutput = settings.stressOutput;
 		this.data = settings.data;
 		this.conditions = settings.conditions;
 	}
@@ -137,12 +131,6 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 		builder.input.computeIfAbsent(FluidRecipeCapability.CAP, c->new ArrayList<>()).addAll(fluidInputs);
 		builder.output.computeIfAbsent(ItemRecipeCapability.CAP, c->new ArrayList<>()).addAll(itemOutputs);
 		builder.output.computeIfAbsent(FluidRecipeCapability.CAP, c->new ArrayList<>()).addAll(fluidOutputs);
-		if(stressInput.isPresent()) {
-			builder.inputStress((float)stressInput.getAsDouble());
-		}
-		if(stressOutput.isPresent()) {
-			builder.outputStress((float)stressOutput.getAsDouble());
-		}
 		builder.data.merge(data);
 		builder.conditions.addAll(conditions);
 

@@ -28,7 +28,7 @@ import thelm.jaopca.items.ItemFormType;
 import thelm.jaopca.utils.ApiImpl;
 import thelm.jaopca.utils.MiscHelper;
 
-@JAOPCAModule(modDependencies = "gtceu@[1.4,)")
+@JAOPCAModule(modDependencies = "gtceu@[1.6,)")
 public class GTCEuCrystalModule implements IModule {
 
 	static final Set<String> BLACKLIST = GTCEuModule.BLACKLIST;
