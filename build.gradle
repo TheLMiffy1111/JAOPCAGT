@@ -1,10 +1,10 @@
 plugins {
-	id "com.crystaelix.loom" version "jitpack-6cccf24f"
+	id "com.crystaelix.loom" version "jitpack-ca3766c3"
 	id "eclipse"
 	id "idea"
 	id "maven-publish"
 	id "net.kyori.blossom" version "[1,2)"
-	id "me.modmuss50.mod-publish-plugin" version "0.7.2"
+	id "me.modmuss50.mod-publish-plugin" version "0.7.4"
 }
 
 repositories {
@@ -69,7 +69,7 @@ def specVersion = "1"
 def vendor = "thelm"
 
 group = "thelm.jaopca.gtce"
-version = "1.0.0.6"
+version = "1.0.0.7"
 
 archivesBaseName = "${modName}-${mcVersion}"
 
@@ -103,7 +103,7 @@ loom {
 
 dependencies {
 	// Log4j
-	implementation "org.apache.logging.log4j:log4j-core:2.22.1"
+	implementation "org.apache.logging.log4j:log4j-core:2.24.1"
 
 	// Minecraft
 	minecraft "com.mojang:minecraft:1.12.2"
@@ -112,19 +112,19 @@ dependencies {
 
 	// Dependencies
 	implementation "curse.maven:wrapup-275153:2486198"
-	modImplementation "curse.maven:jaopca-266936:5601294"
+	modImplementation "curse.maven:jaopca-266936:6283657"
 	modImplementation "codechicken:CodeChickenLib:1.12.2-3.2.3.358:universal"
 	modImplementation "curse.maven:gregtechce-293327:3478805"
-	modImplementation "mezz.jei:jei_1.12.2:4.16.1.1012"
+	modImplementation "mezz.jei:jei_1.12.2:4.16.1.1013"
 
 	// Testing
-	modImplementation "curse.maven:abyssalcraft-53686:5330323"
+	modImplementation "curse.maven:abyssalcraft-53686:5908270"
 
 	// Performance
-	implementation("zone.rong:mixinbooter:9.3") {transitive = false}
+	implementation("zone.rong:mixinbooter:10.5") {transitive = false}
 	modImplementation "curse.maven:reid-629017:5502915"
-	modImplementation "curse.maven:vintagefix-871198:5536276"
-	modImplementation "curse.maven:lolasm-460609:5257348"
+	modImplementation "curse.maven:vintagefix-871198:6217171"
+	modImplementation "curse.maven:lolasm-460609:6217170"
 }
 
 def replacements = [
