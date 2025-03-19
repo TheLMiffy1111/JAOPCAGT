@@ -78,7 +78,7 @@ public class GregTechCrystalModule implements IModule {
 		IItemFormType itemFormType = ItemFormType.INSTANCE;
 		for(IMaterial material : formRequest.getMaterials()) {
 			String name = material.getName();
-			
+
 			IItemInfo exquisiteGemInfo = itemFormType.getMaterialFormInfo(exquisiteGemForm, material);
 			String exquisiteGemOredict = miscHelper.getOredictName("gemExquisite", name);
 			IItemInfo flawlessGemInfo = itemFormType.getMaterialFormInfo(flawlessGemForm, material);
