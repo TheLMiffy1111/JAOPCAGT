@@ -1,5 +1,5 @@
 plugins {
-	id "com.crystaelix.loom" version "1.9.0"
+	id "com.crystaelix.loom" version "1.10.0"
 	id "eclipse"
 	id "idea"
 	id "maven-publish"
@@ -130,7 +130,7 @@ loom {
 
 dependencies {
 	// Log4j
-	implementation "org.apache.logging.log4j:log4j-core:2.24.1"
+	implementation "org.apache.logging.log4j:log4j-core:2.24.3"
 
 	// Minecraft
 	minecraft "com.mojang:minecraft:1.19.2"
@@ -145,7 +145,7 @@ dependencies {
 	modImplementation "com.tterrag.registrate:Registrate:MC1.19-1.1.5"
 	modImplementation("com.lowdragmc.ldlib:ldlib-forge-1.19.2:1.0.25.o") {transitive = false}
 	modImplementation "curse.maven:configuration-444699:5030099"
-	implementation "io.github.llamalad7:mixinextras-forge:0.3.6"
+	implementation "io.github.llamalad7:mixinextras-forge:0.4.1"
 	modImplementation("com.gregtechceu.gtceu:gtceu-1.19.2:1.2.3.a:slim") {transitive = false}
 	modImplementation("mezz.jei:jei-1.19.2-forge:11.8.1.1034") {transitive = false}
 
