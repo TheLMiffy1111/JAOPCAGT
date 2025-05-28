@@ -156,7 +156,7 @@ dependencies {
 	modImplementation "curse.maven:configuration-444699:5840405"
 	implementation "io.github.llamalad7:mixinextras-forge:0.4.1"
 	modImplementation("com.gregtechceu.gtceu:gtceu-1.20.1:1.6.4:slim") {transitive = false}
-	modImplementation("mezz.jei:jei-1.20.1-forge:15.20.0.106") {transitive = false}
+	modImplementation("mezz.jei:jei-1.20.1-forge:15.20.0.108") {transitive = false}
 
 	// Testing
 	forgeRuntimeLibrary "com.eliotlash.mclib:mclib:20"
