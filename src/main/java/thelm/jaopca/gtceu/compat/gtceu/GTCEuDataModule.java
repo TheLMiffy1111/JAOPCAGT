@@ -4,11 +4,9 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -17,20 +15,20 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonWriter;
 import com.gregtechceu.gtceu.api.GTCEuAPI;
-import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
+import com.gregtechceu.gtceu.api.data.chemical.material.ItemMaterialData;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraftforge.fml.loading.FMLPaths;
 import thelm.jaopca.api.data.IDataModule;
 import thelm.jaopca.api.data.JAOPCADataModule;
 import thelm.jaopca.utils.ApiImpl;
 
-@JAOPCADataModule(modDependencies = "gtceu@[1.6,)")
+@JAOPCADataModule(modDependencies = "gtceu@[7,)")
 public class GTCEuDataModule implements IDataModule {
 
 	private static final Logger LOGGER = LogManager.getLogger();
@@ -111,11 +109,7 @@ public class GTCEuDataModule implements IDataModule {
 		try {
 			if(!Files.exists(itemTagCacheFile)) {
 				List<String> itemTags = Stream.concat(
-						ChemicalHelper.UNIFICATION_ENTRY_ITEM.entrySet().stream().
-						filter(entry->!entry.getValue().isEmpty()).
-						map(entry->entry.getKey()).
-						filter(entry->entry.material != null).
-						flatMap(entry->Arrays.stream(entry.tagPrefix.getAllItemTags(entry.material))),
+						ItemMaterialData.TAG_MATERIAL_ENTRY.keySet().stream(),
 						GTToolType.getTypes().values().stream().
 						flatMap(type->type.itemTags.stream())).
 						map(tag->tag.location().toString()).

@@ -3,6 +3,8 @@ package thelm.jaopca.gtceu.compat.gtceu.recipes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.OptionalLong;
 
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -16,6 +18,7 @@ import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.RecipeCondition;
+import com.gregtechceu.gtceu.api.recipe.category.GTRecipeCategory;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
 import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
@@ -42,12 +45,18 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 	public final OptionalLong euInput;
 	public final OptionalLong euOutput;
 	public final OptionalLong euTick;
+	public final OptionalInt cwuInput;
+	public final OptionalInt cwuOutput;
+	public final OptionalInt cwuTick;
+	public final OptionalInt cwuTotal;
 	public final List<Pair<Object, Triple<Integer, Integer, Integer>>> itemInput;
 	public final List<Pair<Object, Triple<Integer, Integer, Integer>>> itemOutput;
 	public final List<Pair<Object, Triple<Integer, Integer, Integer>>> fluidInput;
 	public final List<Pair<Object, Triple<Integer, Integer, Integer>>> fluidOutput;
 	public final CompoundTag data;
 	public final List<RecipeCondition> conditions;
+	public final OptionalInt duration;
+	public final Optional<GTRecipeCategory> category;
 
 	public GTRecipeSerializer(ResourceLocation key, String recipeType, GTRecipeSettings settings) {
 		this(key, GTRecipeTypes.get(recipeType), settings);
@@ -59,12 +68,18 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 		this.euInput = settings.euInput;
 		this.euOutput = settings.euOutput;
 		this.euTick = settings.euTick;
+		this.cwuInput = settings.cwuInput;
+		this.cwuOutput = settings.cwuOutput;
+		this.cwuTick = settings.cwuTick;
+		this.cwuTotal = settings.cwuTotal;
 		this.itemInput = settings.itemInput;
 		this.itemOutput = settings.itemOutput;
 		this.fluidInput = settings.fluidInput;
 		this.fluidOutput = settings.fluidOutput;
 		this.data = settings.data;
 		this.conditions = settings.conditions;
+		this.duration = settings.duration;
+		this.category = settings.category;
 	}
 
 	@Override
@@ -76,14 +91,13 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 		List<Content> itemOutputs = new ArrayList<>();
 		List<Content> fluidOutputs = new ArrayList<>();
 		for(Pair<Object, Triple<Integer, Integer, Integer>> in : itemInput) {
-			Ingredient ing = MiscHelper.INSTANCE.getIngredient(in.getLeft());
+			Ingredient ing = GTCEuHelper.INSTANCE.getIngredient(in.getLeft());
 			if(ing == EmptyIngredient.INSTANCE) {
 				throw new IllegalArgumentException("Empty ingredient in recipe "+key+": "+in);
 			}
 			itemInputs.add(new Content(
 					SizedIngredient.create(ing, in.getRight().getLeft()),
-					in.getRight().getMiddle(), builder.maxChance, in.getRight().getRight(),
-					builder.slotName, builder.uiName));
+					in.getRight().getMiddle(), builder.maxChance, in.getRight().getRight()));
 		}
 		for(Pair<Object, Triple<Integer, Integer, Integer>> in : fluidInput) {
 			FluidIngredient ing = GTCEuHelper.INSTANCE.getFluidIngredient(in.getLeft(), in.getRight().getLeft());
@@ -92,8 +106,7 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 			}
 			fluidInputs.add(new Content(
 					ing,
-					in.getRight().getMiddle(), builder.maxChance, in.getRight().getRight(),
-					builder.slotName, builder.uiName));
+					in.getRight().getMiddle(), builder.maxChance, in.getRight().getRight()));
 		}
 		for(Pair<Object, Triple<Integer, Integer, Integer>> out : itemOutput) {
 			ItemStack stack = MiscHelper.INSTANCE.getItemStack(out.getLeft(), out.getRight().getLeft());
@@ -103,8 +116,7 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 			}
 			itemOutputs.add(new Content(
 					SizedIngredient.create(stack),
-					out.getRight().getMiddle(), builder.maxChance, out.getRight().getRight(),
-					builder.slotName, builder.uiName));
+					out.getRight().getMiddle(), builder.maxChance, out.getRight().getRight()));
 		}
 		for(Pair<Object, Triple<Integer, Integer, Integer>> out : fluidOutput) {
 			var stack = MiscHelper.INSTANCE.getFluidStack(out.getLeft(), out.getRight().getLeft());
@@ -114,18 +126,29 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 			}
 			fluidOutputs.add(new Content(
 					FluidStack.create(stack.getFluid(), stack.getAmount(), stack.getTag()),
-					out.getRight().getMiddle(), builder.maxChance, out.getRight().getRight(),
-					builder.slotName, builder.uiName));
+					out.getRight().getMiddle(), builder.maxChance, out.getRight().getRight()));
 		}
 
 		if(euInput.isPresent()) {
 			builder.inputEU(euInput.getAsLong());
 		}
+		if(euOutput.isPresent()) {
+			builder.outputEU(euOutput.getAsLong());
+		}
 		if(euTick.isPresent()) {
 			builder.EUt(euTick.getAsLong());
 		}
-		if(euOutput.isPresent()) {
-			builder.outputEU(euOutput.getAsLong());
+		if(cwuInput.isPresent()) {
+			builder.inputCWU(cwuInput.getAsInt());
+		}
+		if(cwuOutput.isPresent()) {
+			builder.outputCWU(cwuOutput.getAsInt());
+		}
+		if(cwuTick.isPresent()) {
+			builder.CWUt(cwuTick.getAsInt());
+		}
+		if(cwuTotal.isPresent()) {
+			builder.totalCWU(cwuTotal.getAsInt());
 		}
 		builder.input.computeIfAbsent(ItemRecipeCapability.CAP, c->new ArrayList<>()).addAll(itemInputs);
 		builder.input.computeIfAbsent(FluidRecipeCapability.CAP, c->new ArrayList<>()).addAll(fluidInputs);
@@ -133,6 +156,12 @@ public class GTRecipeSerializer implements IRecipeSerializer {
 		builder.output.computeIfAbsent(FluidRecipeCapability.CAP, c->new ArrayList<>()).addAll(fluidOutputs);
 		builder.data.merge(data);
 		builder.conditions.addAll(conditions);
+		if(duration.isPresent()) {
+			builder.duration(duration.getAsInt());
+		}
+		if(category.isPresent()) {
+			builder.category(category.get());
+		}
 
 		MutableObject<FinishedRecipe> ref = new MutableObject<>();
 		builder.save(ref::setValue);

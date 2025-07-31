@@ -2,28 +2,22 @@ package thelm.jaopca.gtceu.compat.gtceu.recipes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
-import com.gregtechceu.gtceu.api.data.medicalcondition.MedicalCondition;
-import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType;
 import com.gregtechceu.gtceu.api.recipe.RecipeCondition;
+import com.gregtechceu.gtceu.api.recipe.category.GTRecipeCategory;
+import com.gregtechceu.gtceu.api.recipe.ingredient.IntCircuitIngredient;
 import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour;
-import com.gregtechceu.gtceu.common.recipe.condition.BiomeCondition;
-import com.gregtechceu.gtceu.common.recipe.condition.CleanroomCondition;
-import com.gregtechceu.gtceu.common.recipe.condition.DimensionCondition;
-import com.gregtechceu.gtceu.common.recipe.condition.EnvironmentalHazardCondition;
-import com.gregtechceu.gtceu.common.recipe.condition.PositionYCondition;
-import com.gregtechceu.gtceu.common.recipe.condition.RainingCondition;
-import com.gregtechceu.gtceu.common.recipe.condition.ThunderCondition;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.crafting.StrictNBTIngredient;
 
 public class GTRecipeSettings {
@@ -31,6 +25,10 @@ public class GTRecipeSettings {
 	public OptionalLong euInput = OptionalLong.empty();
 	public OptionalLong euOutput = OptionalLong.empty();
 	public OptionalLong euTick = OptionalLong.empty();
+	public OptionalInt cwuInput = OptionalInt.empty();
+	public OptionalInt cwuOutput = OptionalInt.empty();
+	public OptionalInt cwuTick = OptionalInt.empty();
+	public OptionalInt cwuTotal = OptionalInt.empty();
 	public List<Pair<Object, Triple<Integer, Integer, Integer>>> itemInput = new ArrayList<>();
 	public List<Pair<Object, Triple<Integer, Integer, Integer>>> itemOutput = new ArrayList<>();
 	public List<Pair<Object, Triple<Integer, Integer, Integer>>> fluidInput = new ArrayList<>();
@@ -38,9 +36,15 @@ public class GTRecipeSettings {
 	public CompoundTag data = new CompoundTag();
 	public List<RecipeCondition> conditions = new ArrayList<>();
 	public OptionalInt duration = OptionalInt.empty();
+	public Optional<GTRecipeCategory> category = Optional.empty();
 
 	public GTRecipeSettings euInput(long eu) {
 		euInput = OptionalLong.of(eu);
+		return this;
+	}
+
+	public GTRecipeSettings euOutput(long eu) {
+		euOutput = OptionalLong.of(eu);
 		return this;
 	}
 
@@ -49,8 +53,23 @@ public class GTRecipeSettings {
 		return this;
 	}
 
-	public GTRecipeSettings euOutput(long eu) {
-		euOutput = OptionalLong.of(eu);
+	public GTRecipeSettings cwuInput(int cwu) {
+		cwuInput = OptionalInt.of(cwu);
+		return this;
+	}
+
+	public GTRecipeSettings cwuOutput(int cwu) {
+		cwuOutput = OptionalInt.of(cwu);
+		return this;
+	}
+
+	public GTRecipeSettings CWUt(int cwu) {
+		cwuTick = OptionalInt.of(cwu);
+		return this;
+	}
+
+	public GTRecipeSettings cwuTotal(int cwu) {
+		cwuTotal = OptionalInt.of(cwu);
 		return this;
 	}
 
@@ -76,7 +95,11 @@ public class GTRecipeSettings {
 	}
 
 	public GTRecipeSettings circuitMeta(int configuration) {
-		return notConsumable(StrictNBTIngredient.of(IntCircuitBehaviour.stack(configuration)));
+		return notConsumable(IntCircuitIngredient.of(configuration));
+	}
+
+	public GTRecipeSettings explosivesAmount(int explosivesAmount) {
+		return itemInput(new ItemStack(Blocks.TNT, explosivesAmount));
 	}
 
 	public GTRecipeSettings itemOutput(Object output) {
@@ -104,6 +127,10 @@ public class GTRecipeSettings {
 		fluidInput.add(Pair.of(input, Triple.of(amount, chance, tierChanceBoost)));
 		return this;
 	}
+
+    public GTRecipeSettings notConsumableFluid(Object input, int amount) {
+		return fluidInput(input, amount, 0, 0);
+    }
 
 	public GTRecipeSettings fluidOutput(Object output, int amount) {
 		return fluidOutput(output, amount, 10000, 0);
@@ -144,89 +171,18 @@ public class GTRecipeSettings {
 		return this;
 	}
 
-	public GTRecipeSettings blastFurnaceTemp(int blastTemp) {
-		return addData("ebf_temp", blastTemp);
-	}
-
-	public GTRecipeSettings explosivesAmount(int explosivesAmount) {
-		return addData("explosives_amount", explosivesAmount);
-	}
-
-	public GTRecipeSettings explosivesType(ItemStack explosivesType) {
-		return addData("explosives_type", explosivesType.save(new CompoundTag()));
-	}
-
-	public GTRecipeSettings solderMultiplier(int multiplier) {
-		return addData("solderMultiplier", multiplier);
-	}
-
-	public GTRecipeSettings disableDistilleryRecipes(boolean flag) {
-		return addData("disable_distillery", flag);
-	}
-
-	public GTRecipeSettings fusionStartEU(long eu) {
-		return addData("eu_to_start",  eu);
-	}
-
 	public GTRecipeSettings addCondition(RecipeCondition condition) {
 		conditions.add(condition);
 		return this;
 	}
 
-	public GTRecipeSettings cleanroom(CleanroomType cleanroomType) {
-		return addCondition(new CleanroomCondition(cleanroomType));
-	}
-
-	public GTRecipeSettings dimension(ResourceLocation dimension, boolean reverse) {
-		return addCondition(new DimensionCondition(dimension).setReverse(reverse));
-	}
-
-	public GTRecipeSettings dimension(ResourceLocation dimension) {
-		return dimension(dimension, false);
-	}
-
-	public GTRecipeSettings biome(ResourceLocation biome, boolean reverse) {
-		return addCondition(new BiomeCondition(biome).setReverse(reverse));
-	}
-
-	public GTRecipeSettings biome(ResourceLocation biome) {
-		return biome(biome, false);
-	}
-
-	public GTRecipeSettings rain(float level, boolean reverse) {
-		return addCondition(new RainingCondition(level).setReverse(reverse));
-	}
-
-	public GTRecipeSettings rain(float level) {
-		return rain(level, false);
-	}
-
-	public GTRecipeSettings thunder(float level, boolean reverse) {
-		return addCondition(new ThunderCondition(level).setReverse(reverse));
-	}
-
-	public GTRecipeSettings thunder(float level) {
-		return thunder(level, false);
-	}
-
-	public GTRecipeSettings posY(int min, int max, boolean reverse) {
-		return addCondition(new PositionYCondition(min, max).setReverse(reverse));
-	}
-
-	public GTRecipeSettings posY(int min, int max) {
-		return posY(min, max, false);
-	}
-
-	public GTRecipeSettings environmentalHazard(MedicalCondition condition, boolean reverse) {
-		return addCondition(new EnvironmentalHazardCondition(condition).setReverse(reverse));
-	}
-
-	public GTRecipeSettings environmentalHazard(MedicalCondition condition) {
-		return environmentalHazard(condition, false);
-	}
-
 	public GTRecipeSettings duration(int duration) {
 		this.duration = OptionalInt.of(duration);
+		return this;
+	}
+
+	public GTRecipeSettings category(GTRecipeCategory category) {
+		this.category = Optional.of(category);
 		return this;
 	}
 }

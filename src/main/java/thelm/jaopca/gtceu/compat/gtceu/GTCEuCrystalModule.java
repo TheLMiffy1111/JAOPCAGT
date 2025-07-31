@@ -28,7 +28,7 @@ import thelm.jaopca.items.ItemFormType;
 import thelm.jaopca.utils.ApiImpl;
 import thelm.jaopca.utils.MiscHelper;
 
-@JAOPCAModule(modDependencies = "gtceu@[1.6,)")
+@JAOPCAModule(modDependencies = "gtceu@[7,)")
 public class GTCEuCrystalModule implements IModule {
 
 	static final Set<String> BLACKLIST = GTCEuModule.BLACKLIST;
@@ -105,15 +105,15 @@ public class GTCEuCrystalModule implements IModule {
 			{
 				GTRecipeSettings settings = helper.recipeSettings().
 						itemInput(purifiedOreLocation, 1).
-						itemOutput(exquisiteGemInfo, 1, 500, 150).
-						itemOutput(flawlessGemInfo, 1, 1500, 200).
-						itemOutput(materialLocation, 1, 5000, 1000).
-						itemOutput(dustLocation, 1, 2500, 500).
+						itemOutput(exquisiteGemInfo, 1, 500, 0).
+						itemOutput(flawlessGemInfo, 1, 1500, 0).
+						itemOutput(materialLocation, 1, 5000, 0).
+						itemOutput(dustLocation, 1, 2500, 0).
 						duration(400).EUt(16);
 				if(ConfigHolder.INSTANCE.recipes.generateLowQualityGems) {
 					settings.
-					itemOutput(flawedGemInfo, 1, 2000, 500).
-					itemOutput(chippedGemInfo, 1, 3000, 350);
+					itemOutput(flawedGemInfo, 1, 2000, 0).
+					itemOutput(chippedGemInfo, 1, 3000, 0);
 				}
 				helper.registerGTRecipe(
 						new ResourceLocation("jaopca", "gtceu.purified_ore_to_gems."+name),

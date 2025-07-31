@@ -1,6 +1,7 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "jaopca:item/crystal/gtceu_refined_ores"
+		"layer0": "jaopca:item/crystal/gtceu_refined_ores",
+		"layer1": "jaopca:item/crystal/gtceu_refined_ores_overlay"
 	}
 }

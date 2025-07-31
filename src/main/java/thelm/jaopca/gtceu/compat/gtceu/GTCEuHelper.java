@@ -3,6 +3,7 @@ package thelm.jaopca.gtceu.compat.gtceu;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -14,12 +15,18 @@ import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.common.crafting.IntersectionIngredient;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import thelm.jaopca.api.helpers.IMiscHelper;
+import thelm.jaopca.api.ingredients.CompoundIngredientObject;
 import thelm.jaopca.gtceu.compat.gtceu.recipes.GTRecipeSerializer;
 import thelm.jaopca.gtceu.compat.gtceu.recipes.GTRecipeSettings;
+import thelm.jaopca.ingredients.EmptyIngredient;
 import thelm.jaopca.utils.ApiImpl;
 import thelm.jaopca.utils.MiscHelper;
 
@@ -31,6 +38,17 @@ public class GTCEuHelper {
 
 	public GTRecipeSettings recipeSettings() {
 		return new GTRecipeSettings();
+	}
+
+	public Ingredient getIngredient(Object obj) {
+		if(obj instanceof CompoundIngredientObject compound) {
+			Pair<Ingredient, Set<Item>> ing = MiscHelper.INSTANCE.getIngredientResolved(compound);
+			if(ing.getRight().isEmpty()) {
+				return null;
+			}
+			return Ingredient.of(ing.getRight().toArray(ItemLike[]::new));
+		}
+		return MiscHelper.INSTANCE.getIngredient(obj);
 	}
 
 	public FluidIngredient getFluidIngredient(Object obj, int amount) {
@@ -69,15 +87,15 @@ public class GTCEuHelper {
 			fluids.add(stack.getFluid());
 		}
 		else if(obj instanceof FluidStack[] stacks) {
-			ing = FluidIngredient.of(stacks);
+			ing = FluidIngredient.of(Arrays.asList(stacks));
 			Arrays.stream(stacks).map(FluidStack::getFluid).forEach(fluids::add);
 		}
 		else if(obj instanceof Fluid fluid) {
-			ing = FluidIngredient.of(amount, fluid);
+			ing = FluidIngredient.of(fluid, amount);
 			fluids.add(fluid);
 		}
 		else if(obj instanceof Fluid[] fluidz) {
-			ing = FluidIngredient.of(amount, fluidz);
+			ing = FluidIngredient.of(Arrays.asList(fluidz), amount, null);
 			Collections.addAll(fluids, fluidz);
 		}
 		else if(obj instanceof JsonElement) {

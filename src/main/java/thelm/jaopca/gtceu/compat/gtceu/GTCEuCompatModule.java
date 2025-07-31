@@ -5,14 +5,15 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.gregtechceu.gtceu.common.data.GTBlocks;
+import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 import thelm.jaopca.api.JAOPCAApi;
 import thelm.jaopca.api.config.IDynamicSpecConfig;
 import thelm.jaopca.api.helpers.IMiscHelper;
@@ -25,7 +26,7 @@ import thelm.jaopca.gtceu.compat.gtceu.recipes.GTRecipeSettings;
 import thelm.jaopca.utils.ApiImpl;
 import thelm.jaopca.utils.MiscHelper;
 
-@JAOPCAModule(modDependencies = "gtceu@[1.6,)")
+@JAOPCAModule(modDependencies = "gtceu@[7,)")
 public class GTCEuCompatModule implements IModule {
 
 	static final Set<String> BLACKLIST = new TreeSet<>(GTCEuModule.ALTS);
@@ -117,18 +118,10 @@ public class GTCEuCompatModule implements IModule {
 		GTCEuHelper helper = GTCEuHelper.INSTANCE;
 		IMiscHelper miscHelper = MiscHelper.INSTANCE;
 		Set<ResourceLocation> itemTags = api.getItemTags();
-		ResourceLocation darkAshSmallDustLocation = new ResourceLocation("forge:small_dusts/dark_ash");
+		ResourceLocation darkAshDustLocation = new ResourceLocation("forge:dusts/dark_ash");
 		ResourceLocation fileLocation = new ResourceLocation("forge:tools/files");
 		ResourceLocation hardHammerLocation = new ResourceLocation("forge:tools/hammers");
 		ResourceLocation wrenchLocation = new ResourceLocation("forge:tools/wrenches");
-		Item rodExtruderMold = ForgeRegistries.ITEMS.getValue(new ResourceLocation("gtceu:rod_extruder_mold"));
-		Item plateExtruderMold = ForgeRegistries.ITEMS.getValue(new ResourceLocation("gtceu:plate_extruder_mold"));
-		Item blockExtruderMold = ForgeRegistries.ITEMS.getValue(new ResourceLocation("gtceu:block_extruder_mold"));
-		Item gearExtruderMold = ForgeRegistries.ITEMS.getValue(new ResourceLocation("gtceu:gear_extruder_mold"));
-		Item nuggetCastingMold = ForgeRegistries.ITEMS.getValue(new ResourceLocation("gtceu:nugget_casting_mold"));
-		Item ingotCastingMold = ForgeRegistries.ITEMS.getValue(new ResourceLocation("gtceu:ingot_casting_mold"));
-		Item blockCastingMold = ForgeRegistries.ITEMS.getValue(new ResourceLocation("gtceu:block_casting_mold"));
-		Item gearCastingMold = ForgeRegistries.ITEMS.getValue(new ResourceLocation("gtceu:gear_casting_mold"));
 		for(IMaterial material : moduleData.getMaterials()) {
 			MaterialType type = material.getType();
 			String name = material.getName();
@@ -142,7 +135,7 @@ public class GTCEuCompatModule implements IModule {
 							helper.recipeSettings().
 							itemInput(dustLocation, 1).
 							fluidInput(GTMaterials.Water.getFluid(), 250).
-							itemOutput(materialLocation, 1, 7000, 1000).
+							itemOutput(materialLocation, 1, 7500, 0).
 							duration(1200).EUt(24));
 					helper.registerGTRecipe(
 							new ResourceLocation("jaopca", "gtceu.dust_to_material_autoclave_distilled_water."+name),
@@ -159,13 +152,37 @@ public class GTCEuCompatModule implements IModule {
 				ResourceLocation materialLocation = miscHelper.getTagLocation(type.getFormName(), name);
 				if(itemTags.contains(dustLocation)) {
 					helper.registerGTRecipe(
+							new ResourceLocation("jaopca", "gtceu.dust_to_material_implosion_powderbarrel."+name),
+							GTRecipeTypes.IMPLOSION_RECIPES,
+							helper.recipeSettings().
+							itemInput(dustLocation, 4).
+							itemInput(GTBlocks.POWDERBARREL, 8).
+							itemOutput(materialLocation, 3).
+							itemOutput(darkAshDustLocation, 1, 2500, 0));
+					helper.registerGTRecipe(
 							new ResourceLocation("jaopca", "gtceu.dust_to_material_implosion_tnt."+name),
 							GTRecipeTypes.IMPLOSION_RECIPES,
 							helper.recipeSettings().
 							itemInput(dustLocation, 4).
+							itemInput(Blocks.TNT, 4).
 							itemOutput(materialLocation, 3).
-							itemOutput(darkAshSmallDustLocation, 1).
-							explosivesAmount(2));
+							itemOutput(darkAshDustLocation, 1, 2500, 0));
+					helper.registerGTRecipe(
+							new ResourceLocation("jaopca", "gtceu.dust_to_material_implosion_dynamite."+name),
+							GTRecipeTypes.IMPLOSION_RECIPES,
+							helper.recipeSettings().
+							itemInput(dustLocation, 4).
+							itemInput(GTItems.DYNAMITE, 2).
+							itemOutput(materialLocation, 3).
+							itemOutput(darkAshDustLocation, 1, 2500, 0));
+					helper.registerGTRecipe(
+							new ResourceLocation("jaopca", "gtceu.dust_to_material_implosion_itnt."+name),
+							GTRecipeTypes.IMPLOSION_RECIPES,
+							helper.recipeSettings().
+							itemInput(dustLocation, 4).
+							itemInput(GTBlocks.INDUSTRIAL_TNT, 1).
+							itemOutput(materialLocation, 3).
+							itemOutput(darkAshDustLocation, 1, 2500, 0));
 				}
 			}
 			if(type.isDust() && !PLATE_BLACKLIST.contains(name) && !configToPlateBlacklist.contains(name)) {
@@ -236,7 +253,7 @@ public class GTCEuCompatModule implements IModule {
 							GTRecipeTypes.EXTRUDER_RECIPES,
 							helper.recipeSettings().
 							itemInput(materialLocation, 1).
-							notConsumable(rodExtruderMold).
+							notConsumable(GTItems.SHAPE_EXTRUDER_ROD).
 							itemOutput(stickLocation, 2).
 							duration(200).EUt(42));
 				}
@@ -250,7 +267,7 @@ public class GTCEuCompatModule implements IModule {
 							GTRecipeTypes.ALLOY_SMELTER_RECIPES,
 							helper.recipeSettings().
 							itemInput(materialLocation, 1).
-							notConsumable(nuggetCastingMold).
+							notConsumable(GTItems.SHAPE_MOLD_NUGGET).
 							itemOutput(nuggetLocation, 9).
 							duration(100).EUt(7));
 				}
@@ -264,7 +281,7 @@ public class GTCEuCompatModule implements IModule {
 							GTRecipeTypes.ALLOY_SMELTER_RECIPES,
 							helper.recipeSettings().
 							itemInput(storageBlockLocation, 1).
-							notConsumable(ingotCastingMold).
+							notConsumable(GTItems.SHAPE_MOLD_INGOT).
 							itemOutput(materialLocation, (material.isSmallStorageBlock() ? 4 : 9)).
 							duration(900).EUt(7));
 				}
@@ -313,7 +330,7 @@ public class GTCEuCompatModule implements IModule {
 							GTRecipeTypes.EXTRUDER_RECIPES,
 							helper.recipeSettings().
 							itemInput(materialLocation, 1).
-							notConsumable(plateExtruderMold).
+							notConsumable(GTItems.SHAPE_EXTRUDER_PLATE).
 							itemOutput(plateLocation, 1).
 							duration(100).EUt(56));
 				}
@@ -334,7 +351,7 @@ public class GTCEuCompatModule implements IModule {
 							GTRecipeTypes.ALLOY_SMELTER_RECIPES,
 							helper.recipeSettings().
 							itemInput(nuggetLocation, 9).
-							notConsumable(ingotCastingMold).
+							notConsumable(GTItems.SHAPE_MOLD_INGOT).
 							itemOutput(materialLocation, 1).
 							duration(100).EUt(7));
 				}
@@ -361,7 +378,7 @@ public class GTCEuCompatModule implements IModule {
 							GTRecipeTypes.EXTRUDER_RECIPES,
 							helper.recipeSettings().
 							itemInput(materialLocation, (material.isSmallStorageBlock() ? 4 : 9)).
-							notConsumable(blockExtruderMold).
+							notConsumable(GTItems.SHAPE_EXTRUDER_BLOCK).
 							itemOutput(storageBlockLocation, 1).
 							duration(10).EUt(56));
 					helper.registerGTRecipe(
@@ -369,7 +386,7 @@ public class GTCEuCompatModule implements IModule {
 							GTRecipeTypes.ALLOY_SMELTER_RECIPES,
 							helper.recipeSettings().
 							itemInput(materialLocation, (material.isSmallStorageBlock() ? 4 : 9)).
-							notConsumable(blockCastingMold).
+							notConsumable(GTItems.SHAPE_MOLD_BLOCK).
 							itemOutput(storageBlockLocation, 1).
 							duration(5).EUt(28));
 				}
@@ -409,7 +426,7 @@ public class GTCEuCompatModule implements IModule {
 							GTRecipeTypes.EXTRUDER_RECIPES,
 							helper.recipeSettings().
 							itemInput(materialLocation, 4).
-							notConsumable(gearExtruderMold).
+							notConsumable(GTItems.SHAPE_EXTRUDER_GEAR).
 							itemOutput(gearLocation, 1).
 							duration(500).EUt(56));
 					helper.registerGTRecipe(
@@ -417,7 +434,7 @@ public class GTCEuCompatModule implements IModule {
 							GTRecipeTypes.ALLOY_SMELTER_RECIPES,
 							helper.recipeSettings().
 							itemInput(materialLocation, 8).
-							notConsumable(gearCastingMold).
+							notConsumable(GTItems.SHAPE_MOLD_GEAR).
 							itemOutput(gearLocation, 1).
 							duration(1000).EUt(14));
 				}

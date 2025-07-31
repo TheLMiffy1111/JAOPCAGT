@@ -1,2 +1,1 @@
-Updated GregTech to 1.6+  
-Optimized images with oxipng  
+Update to GTM 7.x  
