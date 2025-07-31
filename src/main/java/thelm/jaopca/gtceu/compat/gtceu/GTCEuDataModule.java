@@ -7,7 +7,6 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -18,7 +17,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
-import com.gregtechceu.gtceu.api.material.ChemicalHelper;
+import com.gregtechceu.gtceu.api.material.material.ItemMaterialData;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 
@@ -28,7 +27,7 @@ import thelm.jaopca.api.data.IDataModule;
 import thelm.jaopca.api.data.JAOPCADataModule;
 import thelm.jaopca.utils.ApiImpl;
 
-@JAOPCADataModule(modDependencies = "gtceu@[1.4,)")
+@JAOPCADataModule(modDependencies = "gtceu@[7,)")
 public class GTCEuDataModule implements IDataModule {
 
 	private static final Logger LOGGER = LogManager.getLogger();
@@ -109,11 +108,7 @@ public class GTCEuDataModule implements IDataModule {
 		try {
 			if(!Files.exists(itemTagCacheFile)) {
 				List<String> itemTags = Stream.concat(
-						ChemicalHelper.UNIFICATION_ENTRY_ITEM.entrySet().stream().
-						filter(entry->!entry.getValue().isEmpty()).
-						map(entry->entry.getKey()).
-						filter(entry->entry.material != null).
-						flatMap(entry->Arrays.stream(entry.tagPrefix.getAllItemTags(entry.material))),
+						ItemMaterialData.TAG_MATERIAL_ENTRY.keySet().stream(),
 						GTToolType.getTypes().values().stream().
 						flatMap(type->type.itemTags.stream())).
 						map(tag->tag.location().toString()).
@@ -127,7 +122,7 @@ public class GTCEuDataModule implements IDataModule {
 		}
 		try {
 			if(!Files.exists(materialCacheFile)) {
-				List<GTCEuMaterialData> materials = GTCEuAPI.materialManager.getRegisteredMaterials().stream().
+				List<GTCEuMaterialData> materials = GTCEuAPI.materialManager.stream().
 						sorted().map(GTCEuMaterialData::fromGTCEuMaterial).toList();
 				JsonElement materialJson = GTCEuMaterialData.CODEC.listOf().encodeStart(JsonOps.INSTANCE, materials).result().get();
 				Files.writeString(materialCacheFile, materialJson.toString(), StandardCharsets.UTF_8);

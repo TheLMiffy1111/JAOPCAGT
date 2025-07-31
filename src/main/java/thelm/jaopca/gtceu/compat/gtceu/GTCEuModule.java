@@ -10,10 +10,15 @@ import java.util.function.Function;
 
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
-import com.gregtechceu.gtceu.api.GTCEuAPI;
+import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.material.ChemicalHelper;
+import com.gregtechceu.gtceu.api.material.material.properties.PropertyKey;
+import com.gregtechceu.gtceu.api.material.material.stack.MaterialStack;
 import com.gregtechceu.gtceu.api.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.tag.TagPrefix.OreType;
+import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.data.material.GTMaterials;
+import com.gregtechceu.gtceu.data.recipe.GTRecipeCategories;
 import com.gregtechceu.gtceu.data.recipe.GTRecipeTypes;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
@@ -21,6 +26,7 @@ import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import thelm.jaopca.api.JAOPCAApi;
@@ -40,7 +46,7 @@ import thelm.jaopca.items.ItemFormType;
 import thelm.jaopca.utils.ApiImpl;
 import thelm.jaopca.utils.MiscHelper;
 
-@JAOPCAModule(modDependencies = "gtceu@[1.4,)")
+@JAOPCAModule(modDependencies = "gtceu@[7,)")
 public class GTCEuModule implements IModule {
 
 	static final List<String> ALTS = Arrays.asList("aluminum", "quartz");
@@ -104,18 +110,19 @@ public class GTCEuModule implements IModule {
 		GTCEuHelper helper = GTCEuHelper.INSTANCE;
 		IMiscHelper miscHelper = MiscHelper.INSTANCE;
 		IItemFormType itemFormType = ItemFormType.INSTANCE;
-		ResourceLocation hardHammerLocation = ResourceLocation.parse("c:tools/hammers");
+		ResourceLocation hardHammerLocation = ResourceLocation.parse("c:tools/hammer");
 		ResourceLocation stoneDustLocation = ResourceLocation.parse("c:dusts/stone");
-		ResourceLocation endstoneDustLocation = ResourceLocation.parse("c:dusts/endstone");
 		Function<TagPrefix, String> toGround = prefix->{
 			return FormattingUtil.toLowerCaseUnderscore(prefix.name);
 		};
 		CompoundIngredientObject allOreLocationsObj = CompoundIngredientObject.union(
 				TagPrefix.ORES.entrySet().stream().
+				filter(entry->ConfigHolder.INSTANCE.worldgen.allUniqueStoneTypes || entry.getValue().shouldDropAsItem()).
 				map(entry->ResourceLocation.parse("c:ores_in_ground/"+toGround.apply(entry.getKey()))).
 				toArray());
 		CompoundIngredientObject doubleOreLocationsObj = CompoundIngredientObject.union(
 				TagPrefix.ORES.entrySet().stream().
+				filter(entry->ConfigHolder.INSTANCE.worldgen.allUniqueStoneTypes || entry.getValue().shouldDropAsItem()).
 				filter(entry->entry.getValue().isDoubleDrops()).
 				map(entry->ResourceLocation.parse("c:ores_in_ground/"+toGround.apply(entry.getKey()))).
 				toArray());
@@ -156,7 +163,8 @@ public class GTCEuModule implements IModule {
 								doubleOreLocationsObj,
 						}), 1).
 						itemOutput(crushedOreInfo, 1).
-						duration(10).EUt(16));
+						duration(10).EUt(16).
+						category(GTRecipeCategories.ORE_FORGING));
 				helper.registerGTRecipe(
 						miscHelper.getRecipeKey("gtceu.double_ore_to_crushed_ore_forge_hammer", name),
 						GTRecipeTypes.FORGE_HAMMER_RECIPES,
@@ -166,7 +174,8 @@ public class GTCEuModule implements IModule {
 								doubleOreLocationsObj,
 						}), 1).
 						itemOutput(crushedOreInfo, 2).
-						duration(10).EUt(16));
+						duration(10).EUt(16).
+						category(GTRecipeCategories.ORE_FORGING));
 			}
 			{
 				ResourceLocation extra1Location = material.getExtra(1).getType().isCrystalline() ? extra1MaterialLocation : extra1DustLocation;
@@ -180,8 +189,12 @@ public class GTCEuModule implements IModule {
 						}), 1).
 						itemOutput(crushedOreInfo, 2).
 						itemOutput(extra1Location, 1400, 850).
-						duration(400).EUt(2));
+						duration(400).EUt(2).
+						category(GTRecipeCategories.ORE_CRUSHING));
 				for(Map.Entry<TagPrefix, OreType> entry : TagPrefix.ORES.entrySet()){
+					if(!ConfigHolder.INSTANCE.worldgen.allUniqueStoneTypes && !entry.getValue().shouldDropAsItem()) {
+						continue;
+					}
 					String ground = toGround.apply(entry.getKey());
 					int multiplier = entry.getValue().isDoubleDrops() ? 2 : 1;
 					GTRecipeSettings settings = helper.recipeSettings().
@@ -190,13 +203,13 @@ public class GTCEuModule implements IModule {
 									ResourceLocation.parse("c:ores_in_ground/"+ground),
 							}), 1).
 							itemOutput(crushedOreInfo, 2*multiplier).
-							itemOutput(extra1Location, 1400, 850).
-							duration(400).EUt(2);
-					if(GTCEuAPI.materialManager.getMaterial(ground) != null) {
-						settings.itemOutput(ResourceLocation.parse("c:dusts/"+ground));
-					}
-					else if(ground.equals("endstone")) {
-						settings.itemOutput(endstoneDustLocation);
+							itemOutput(extra1Location, 1400, 0).
+							duration(400).EUt(2).
+							category(GTRecipeCategories.ORE_CRUSHING);
+					for(MaterialStack secondaryMaterial : entry.getKey().secondaryMaterials()) {
+						if(secondaryMaterial.material().hasProperty(PropertyKey.DUST)) {
+							settings.itemOutput(ResourceLocation.parse("c:dusts/"+secondaryMaterial.material().getName()), (int)(secondaryMaterial.amount() / GTValues.M), 6700, 0);
+						}
 					}
 					helper.registerGTRecipe(
 							miscHelper.getRecipeKey("gtceu."+ground+"_ore_to_crushed_ore_macerator", name),
@@ -205,23 +218,29 @@ public class GTCEuModule implements IModule {
 			}
 			if(material.getType() == MaterialType.INGOT) {
 				ResourceLocation rawMaterialLocation = miscHelper.getTagLocation("raw_materials", material.getName());
+				ResourceLocation extra1Location = material.getExtra(1).getType().isCrystalline() ? extra1MaterialLocation : extra1DustLocation;
 				helper.registerGTRecipe(
 						miscHelper.getRecipeKey("gtceu.raw_material_to_crushed_ore_forge_hammer", name),
 						GTRecipeTypes.FORGE_HAMMER_RECIPES,
 						helper.recipeSettings().
 						itemInput(rawMaterialLocation, 1).
 						itemOutput(crushedOreInfo, 1).
-						duration(10).EUt(16));
+						duration(10).EUt(16).
+						category(GTRecipeCategories.ORE_FORGING));
+				GTRecipeSettings settings = helper.recipeSettings().
+						itemInput(rawMaterialLocation, 1).
+						itemOutput(crushedOreInfo, 2).
+						itemOutput(extra1Location, 1, 1400, 0).
+						duration(400).EUt(2).
+						category(GTRecipeCategories.ORE_CRUSHING);
+				for(MaterialStack secondaryMaterial : TagPrefix.ore.secondaryMaterials()) {
+					if(secondaryMaterial.material().hasProperty(PropertyKey.DUST)) {
+						settings.itemOutput(ResourceLocation.parse("c:dusts/"+secondaryMaterial.material().getName()), (int)(secondaryMaterial.amount() / GTValues.M), 6700, 0);
+					}
+				}
 				helper.registerGTRecipe(
 						miscHelper.getRecipeKey("gtceu.raw_material_to_crushed_ore_macerator", name),
-						GTRecipeTypes.MACERATOR_RECIPES,
-						helper.recipeSettings().
-						itemInput(rawMaterialLocation, 1).
-						itemOutput(crushedOreInfo, 1).
-						itemOutput(crushedOreInfo, 1, 5000, 750).
-						itemOutput(crushedOreInfo, 1, 2500, 500).
-						itemOutput(crushedOreInfo, 1, 1250, 250).
-						duration(400).EUt(2));
+						GTRecipeTypes.MACERATOR_RECIPES, settings);
 			}
 			// to_purified_ore
 			helper.registerGTRecipe(
@@ -249,7 +268,7 @@ public class GTCEuModule implements IModule {
 					helper.recipeSettings().
 					itemInput(crushedOreLocation, 1).
 					circuitMeta(1).
-					fluidInput(GTMaterials.DistilledWater.getFluid(), 1000).
+					fluidInput(GTMaterials.DistilledWater.getFluid(), 100).
 					itemOutput(purifiedOreInfo, 1).
 					itemOutput(extra1TinyDustLocation, 3).
 					itemOutput(stoneDustLocation, 1).
@@ -277,15 +296,17 @@ public class GTCEuModule implements IModule {
 					helper.recipeSettings().
 					itemInput(crushedOreLocation, 1).
 					itemOutput(impureDustInfo, 1).
-					duration(10).EUt(16));
+					duration(10).EUt(16).
+					category(GTRecipeCategories.ORE_FORGING));
 			helper.registerGTRecipe(
 					miscHelper.getRecipeKey("gtceu.crushed_ore_to_impure_dust_macerator", name),
 					GTRecipeTypes.MACERATOR_RECIPES,
 					helper.recipeSettings().
 					itemInput(crushedOreLocation, 1).
 					itemOutput(impureDustInfo, 1).
-					itemOutput(extra1DustLocation, 1, 1400, 850).
-					duration(400).EUt(2));
+					itemOutput(extra1DustLocation, 1, 1400, 0).
+					duration(400).EUt(2).
+					category(GTRecipeCategories.ORE_CRUSHING));
 			api.registerShapelessRecipe(
 					miscHelper.getRecipeKey("gtceu.crushed_ore_to_impure_dust_hard_hammer", name),
 					impureDustInfo, 1, new Object[] {
@@ -298,15 +319,17 @@ public class GTCEuModule implements IModule {
 					helper.recipeSettings().
 					itemInput(purifiedOreLocation, 1).
 					itemOutput(pureDustInfo, 1).
-					duration(10).EUt(16));
+					duration(10).EUt(16).
+					category(GTRecipeCategories.ORE_FORGING));
 			helper.registerGTRecipe(
 					miscHelper.getRecipeKey("gtceu.purified_ore_to_pure_dust_macerator", name),
 					GTRecipeTypes.MACERATOR_RECIPES,
 					helper.recipeSettings().
 					itemInput(purifiedOreLocation, 1).
 					itemOutput(pureDustInfo, 1).
-					itemOutput(extra2DustLocation, 1, 1400, 850).
-					duration(400).EUt(2));
+					itemOutput(extra2DustLocation, 1, 1400, 0).
+					duration(400).EUt(2).
+					category(GTRecipeCategories.ORE_CRUSHING));
 			api.registerShapelessRecipe(
 					miscHelper.getRecipeKey("gtceu.purified_ore_to_pure_dust_hard_hammer", name),
 					pureDustInfo, 1, new Object[] {
@@ -319,15 +342,17 @@ public class GTCEuModule implements IModule {
 					helper.recipeSettings().
 					itemInput(refinedOreLocation, 1).
 					itemOutput(dustLocation, 1).
-					duration(10).EUt(16));
+					duration(10).EUt(16).
+					category(GTRecipeCategories.ORE_FORGING));
 			helper.registerGTRecipe(
 					miscHelper.getRecipeKey("gtceu.refined_ore_to_dust_macerator", name),
 					GTRecipeTypes.MACERATOR_RECIPES,
 					helper.recipeSettings().
 					itemInput(refinedOreLocation, 1).
 					itemOutput(dustLocation, 1).
-					itemOutput(extra3DustLocation, 1, 1400, 850).
-					duration(400).EUt(2));
+					itemOutput(extra3DustLocation, 1, 1400, 0).
+					duration(400).EUt(2).
+					category(GTRecipeCategories.ORE_CRUSHING));
 			api.registerShapelessRecipe(
 					miscHelper.getRecipeKey("gtceu.refined_ore_to_dust_hard_hammer", name),
 					dustLocation, 1, new Object[] {
@@ -395,7 +420,8 @@ public class GTCEuModule implements IModule {
 								doubleOreLocationsObj,
 						})).
 						itemOutput(materialLocation, 1).
-						duration(10).EUt(16));
+						duration(10).EUt(16).
+						category(GTRecipeCategories.ORE_FORGING));
 				helper.registerGTRecipe(
 						miscHelper.getRecipeKey("gtceu.double_ore_to_material", name),
 						GTRecipeTypes.FORGE_HAMMER_RECIPES,
@@ -405,7 +431,8 @@ public class GTCEuModule implements IModule {
 								doubleOreLocationsObj,
 						})).
 						itemOutput(materialLocation, 2).
-						duration(10).EUt(16));
+						duration(10).EUt(16).
+						category(GTRecipeCategories.ORE_CRUSHING));
 			}
 			// cauldron
 			CauldronInteraction toPurifiedOre = (state, level, pos, player, hand, stack)->{
