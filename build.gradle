@@ -127,7 +127,7 @@ dependencies {
 
 	// Dependencies
 	implementation "thelm.wrapup:WrapUp-1.12.2:1.1.3"
-	modImplementation "thelm.jaopca:JAOPCA-1.12.2:2.3.13.35"
+	modImplementation "thelm.jaopca:JAOPCA-1.12.2:2.3.14.37"
 	modImplementation "codechicken:CodeChickenLib:1.12.2-3.2.3.358:universal"
 	modImplementation "curse.maven:gregtech-ce-unofficial-557242:5519022"
 	modImplementation "mezz.jei:jei_1.12.2:4.16.1.1013"
