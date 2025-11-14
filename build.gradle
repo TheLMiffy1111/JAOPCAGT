@@ -148,7 +148,7 @@ dependencies {
 		officialMojangMappings()
 		parchment "org.parchmentmc.data:parchment-1.20.1:2023.09.03@zip"
 	}
-	forge "net.minecraftforge:forge:1.20.1-47.4.4"
+	forge "net.minecraftforge:forge:1.20.1-47.4.10"
 
 	// Dependencies
 	modImplementation "thelm.jaopca:JAOPCA-1.20.1:4.4.17.33"
