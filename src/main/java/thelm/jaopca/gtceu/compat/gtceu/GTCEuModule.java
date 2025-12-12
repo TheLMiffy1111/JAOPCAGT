@@ -117,12 +117,10 @@ public class GTCEuModule implements IModule {
 		};
 		CompoundIngredientObject allOreLocationsObj = CompoundIngredientObject.union(
 				TagPrefix.ORES.entrySet().stream().
-				filter(entry->ConfigHolder.INSTANCE.worldgen.allUniqueStoneTypes || entry.getValue().shouldDropAsItem()).
 				map(entry->new ResourceLocation("forge:ores_in_ground/"+toGround.apply(entry.getKey()))).
 				toArray());
 		CompoundIngredientObject doubleOreLocationsObj = CompoundIngredientObject.union(
 				TagPrefix.ORES.entrySet().stream().
-				filter(entry->ConfigHolder.INSTANCE.worldgen.allUniqueStoneTypes || entry.getValue().shouldDropAsItem()).
 				filter(entry->entry.getValue().isDoubleDrops()).
 				map(entry->new ResourceLocation("forge:ores_in_ground/"+toGround.apply(entry.getKey()))).
 				toArray());
@@ -192,9 +190,6 @@ public class GTCEuModule implements IModule {
 						duration(400).EUt(2).
 						category(GTRecipeCategories.ORE_CRUSHING));
 				for(Map.Entry<TagPrefix, OreType> entry : TagPrefix.ORES.entrySet()) {
-					if(!ConfigHolder.INSTANCE.worldgen.allUniqueStoneTypes && !entry.getValue().shouldDropAsItem()) {
-						continue;
-					}
 					String ground = toGround.apply(entry.getKey());
 					int multiplier = entry.getValue().isDoubleDrops() ? 2 : 1;
 					GTRecipeSettings settings = helper.recipeSettings().
