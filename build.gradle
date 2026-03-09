@@ -123,7 +123,7 @@ dependencies {
 	legacyForge "net.minecraftforge:forge:1.7.10-10.13.4.1614-1.7.10:universal"
 
 	// Dependencies
-	implementation("com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:0.1.23") {transitive = false}
+	implementation("com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:0.2.1") {transitive = false}
 	modImplementation "thelm.jaopca:JAOPCA-1.7.10:W.0.8.31"
 	modImplementation "curse.maven:industrial-craft-242638:6833054"
 	modImplementation "curse.maven:gregtech-4-483827:4685300"
@@ -131,7 +131,7 @@ dependencies {
 	modImplementation "curse.maven:thermal-foundation-222880:2388752"
 	modImplementation "curse.maven:thermal-expansion-69163:2388758"
 	modImplementation("com.github.GTNewHorizons:CodeChickenCore:1.4.10") {transitive = false}
-	modImplementation("com.github.GTNewHorizons:NotEnoughItems:2.8.40-GTNH") {transitive = false}
+	modImplementation("com.github.GTNewHorizons:NotEnoughItems:2.8.60-GTNH") {transitive = false}
 	modImplementation "curse.maven:nei-integration-225251:2282522"
 
 	// Testing
